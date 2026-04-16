@@ -19,13 +19,14 @@ public class DeleteIngredients {
         try {
             connection = DBConnection.getConnection();
 
-            // Check if ingredient is used in recipe_ingredients
+            // Check if ingredient is used in recipe_ingredients, if its used in a recipe then it shouldnt be deleted
             checkSt = connection.prepareStatement(checkSql);
             checkSt.setInt(1, ingredientId);
 
             resultSet = checkSt.executeQuery();
             resultSet.next();
 
+            //taking the first column from result of sql which is count
             int usageCount = resultSet.getInt(1);
 
             if (usageCount > 0) {

@@ -12,6 +12,7 @@ public class DeleteRecipe {
 
         int rowsAffected = 0;
 
+        //deleting eveything associated with that recipe to avoid errors
         String deleteNutritionSql = "DELETE FROM nutrition WHERE recipe_id = ?";
         String deleteRecipeIngredientsSql = "DELETE FROM recipe_ingredients WHERE recipe_id = ?";
         String deleteRecipeSql = "DELETE FROM recipes WHERE recipe_id = ?";
@@ -29,6 +30,7 @@ public class DeleteRecipe {
 
             deleteRecipeSt = connection.prepareStatement(deleteRecipeSql);
             deleteRecipeSt.setInt(1, recipeId);
+            //executeUpdate runs the sql statement and returns the number of rows affected
             rowsAffected = deleteRecipeSt.executeUpdate();
 
             System.out.println(rowsAffected + " recipe deleted successfully.");

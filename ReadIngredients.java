@@ -21,8 +21,10 @@ public class ReadIngredients {
 
             resultSet = pstat.executeQuery();
 
+            //while theres still another row form the result of the sql
             while (resultSet.next()) {
                 output = output +
+                //column names
                         "ID: " + resultSet.getInt("ingredient_id") +
                         " | Name: " + resultSet.getString("name") + "\n";
             }

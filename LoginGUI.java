@@ -14,10 +14,10 @@ public class LoginGUI extends JFrame {
     private RecipeAdminGUI mainGUI;
 
     public LoginGUI(RecipeAdminGUI mainGUI) {
-        // we pass in the main GUI so LoginGUI can talk back to it
+        // pass in the main GUI so LoginGUI can talk back to it
         this.mainGUI = mainGUI;
 
-         // ---- FORCE CUSTOM COLOURS ----
+         //FORCE CUSTOM COLOURS
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         } catch (Exception e) {
@@ -26,7 +26,7 @@ public class LoginGUI extends JFrame {
 
         setTitle("Admin Login");
         setSize(400, 250);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // only closes this window, not the whole app
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // only closes this window
         setLayout(new GridLayout(4, 2, 5, 5));
 
         usernameField = new JTextField();

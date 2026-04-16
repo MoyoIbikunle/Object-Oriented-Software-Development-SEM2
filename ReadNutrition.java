@@ -29,6 +29,7 @@ public class ReadNutrition {
                         " | Calories: " + resultSet.getDouble("calories") + "\n";
             }
 
+            //if there was no row and nothing was put into output
             if (output.equals("")) {
                 output = "No nutrition records found.";
             }

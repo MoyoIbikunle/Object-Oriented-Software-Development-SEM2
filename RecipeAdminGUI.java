@@ -15,6 +15,8 @@ public class RecipeAdminGUI extends JFrame{
     private JTextField searchField;
    
    
+    private JPanel inputPanel;
+
     //Text Area: allows for multi-line input
     private JTextArea ingredientsArea;
     private JTextArea instructionsArea;
@@ -28,6 +30,7 @@ public class RecipeAdminGUI extends JFrame{
     private JButton searchButton;
     private JButton adminLoginButton;
     private JButton adminLogoutButton;
+    private JButton adjustButton;
 
     public RecipeAdminGUI(){
 
@@ -45,8 +48,8 @@ public class RecipeAdminGUI extends JFrame{
         setLayout(new BorderLayout());
 
         //INPUT PANEL
-
-        JPanel inputPanel = new JPanel(new GridLayout (11, 2, 5, 5)); // 8 rows for 8 labels, col1 label, col2 input, 5 px between cells by height and width
+        inputPanel = new JPanel(new GridLayout (10, 2, 5, 5));
+      
         
         idField = new JTextField();
         nameField = new JTextField();
@@ -93,15 +96,24 @@ public class RecipeAdminGUI extends JFrame{
         inputPanel.add(new JLabel("Fat:"));
         inputPanel.add(fatField);
 
-        inputPanel.add(new JLabel("Search:"));
-        inputPanel.add(searchField);
+        inputPanel.setVisible(false);
 
-        add(inputPanel, BorderLayout.NORTH);
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        searchPanel.add(new JLabel("Search:"));
+        searchField = new JTextField(20);
+        searchPanel.add(searchField);
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(inputPanel, BorderLayout.NORTH);
+        topPanel.add(searchPanel, BorderLayout.SOUTH);
+
+        add(topPanel, BorderLayout.NORTH);
 
           //          OUTPUT AREA 
-        outputArea = new JTextArea(12, 50);
+        outputArea = new JTextArea(18, 90);
         outputArea.setEditable(false);
-
+        outputArea.setLineWrap(true);
+        outputArea.setWrapStyleWord(true);
         JScrollPane outputScrollPane = new JScrollPane(outputArea);
         outputScrollPane.setBorder(BorderFactory.createTitledBorder("Output"));
         add(outputScrollPane, BorderLayout.CENTER);
@@ -113,6 +125,7 @@ public class RecipeAdminGUI extends JFrame{
         deleteButton = new JButton("Delete Recipe");
         viewButton = new JButton("View Recipes");
         searchButton = new JButton("Search Recipes");
+        adjustButton = new JButton("Adjust Servings");
         adminLoginButton = new JButton ("Admin Login");
         adminLogoutButton = new JButton("Admin Logout");
 
@@ -130,6 +143,7 @@ public class RecipeAdminGUI extends JFrame{
         buttonPanel.add(searchButton);
         buttonPanel.add(adminLoginButton);
         buttonPanel.add(adminLogoutButton);
+        buttonPanel.add(adjustButton);
       
         add (buttonPanel, BorderLayout.SOUTH);
 
@@ -194,38 +208,48 @@ public class RecipeAdminGUI extends JFrame{
 
     // called by LoginGUI when admin logs in successfully
     public void showAdminControls() {
+        inputPanel.setVisible(true);
         addButton.setVisible(true);
         updateButton.setVisible(true);
         deleteButton.setVisible(true);
         adminLoginButton.setVisible(false);
         adminLogoutButton.setVisible(true);
+        revalidate();
+        repaint();
     }
 
     // called when admin logs out
     private void hideAdminControls() {
+        inputPanel.setVisible(false);
         addButton.setVisible(false);
         updateButton.setVisible(false);
         deleteButton.setVisible(false);
         adminLoginButton.setVisible(true);
        adminLogoutButton.setVisible(false);
-
+        revalidate();
+        repaint();
        }
     
        private void setupActionListeners(){
 
 
-        // ----- ADMIN LOGIN BUTTON -----
+        //  ADMIN LOGIN BUTTON
+        //add a listener to this button for when its clicked
+        ////ActionListener is the listener
         adminLoginButton.addActionListener(new ActionListener() {
+            //what runs when the button is clicked
+            //ActionEvent e gives information about the click, what was clicked, when....
             public void actionPerformed(ActionEvent e) {
                 // open the login window, pass this GUI as a reference
                 new LoginGUI(RecipeAdminGUI.this);
             }
         });
 
-        // ----- ADMIN LOGOUT BUTTON -----
+        // ADMIN LOGOUT BUTTON
         adminLogoutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 hideAdminControls();
+                //RecipeAdminGUI.this lets it know what this is in reference to, so where the dialog box should go
                 JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Logged out successfully.");
             }
         });
@@ -239,12 +263,12 @@ public class RecipeAdminGUI extends JFrame{
         String instructions = instructionsArea.getText().trim();
         String ingredients = ingredientsArea.getText().trim();
 
-         // Assuming nutrition is entered as three separate fields
+         // CONVERTING THE STRINGS TO DOUBLE
         double calories = Double.parseDouble(caloriesField.getText().trim());
         double protein = Double.parseDouble(proteinField.getText().trim());
         double fat = Double.parseDouble(fatField.getText().trim());
 
-        //      CONVERTING THE STRINGS TO INPUT
+        //      CONVERTING THE STRINGS TO INT
         int servings = Integer.parseInt(servingsField.getText().trim());
         int prepTime = Integer.parseInt(prepTimeField.getText().trim());
         int cookTime = Integer.parseInt(cookTimeField.getText().trim());
@@ -262,7 +286,10 @@ public class RecipeAdminGUI extends JFrame{
         }
 
         //          INSERT RECIPE
+        //          create object 
+        //          use method from insertRecipe to insertRecipe which reurns recipeId
         InsertRecipe recipeInserter = new InsertRecipe();
+        //recipeId needed to run methods like insertRecipeIngredient, etc...
         int recipeId = recipeInserter.insertRecipe(name, instructions, servings, prepTime, cookTime);
     
          //      INSERT INGREDIENTS 
@@ -328,7 +355,9 @@ updateButton.addActionListener(new ActionListener(){
             JOptionPane.showMessageDialog(RecipeAdminGUI.this, rows + " recipe updated successfully!");
             clearFields();
 
-        } catch(NumberFormatException nfe) {
+        } 
+        //when java cant parse a String into a numeric type cause the text wasnt a valid number
+        catch(NumberFormatException nfe) {
             JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Recipe ID, Servings, Prep Time, and Cook Time must be numbers.");
         } catch(Exception ex) {
             JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Error updating recipe: " + ex.getMessage());
@@ -368,9 +397,10 @@ viewButton.addActionListener(new ActionListener(){
 
             ReadRecipe reader = new ReadRecipe();
             // get all recipes as a String
-            String allRecipes = reader.getAllRecipes(); // make sure your ReadRecipe class has a method returning a formatted String
+            String allRecipes = reader.getAllRecipes();
             
-            outputArea.setText(allRecipes);
+        outputArea.setText(allRecipes);
+        //moves cursor to the top of the text area, so user sees the beginning first
            outputArea.setCaretPosition(0);
         
         } catch(Exception ex) {
@@ -405,6 +435,34 @@ viewButton.addActionListener(new ActionListener(){
                 }
             }
         });
+
+        adjustButton.addActionListener(new ActionListener(){
+    public void actionPerformed(ActionEvent e){
+        try {
+            int recipeId = Integer.parseInt(idField.getText().trim());
+            int desiredServings = Integer.parseInt(servingsField.getText().trim());
+
+            if (desiredServings <= 0) {
+                JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Servings must be greater than 0.");
+                return;
+            }
+
+            ReadRecipe reader = new ReadRecipe();
+            String adjustedRecipe = reader.adjustServings(recipeId, desiredServings);
+
+            outputArea.setText(adjustedRecipe);
+            outputArea.setCaretPosition(0);
+
+        } catch(NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Recipe ID and Servings must be numbers.");
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Error adjusting recipe: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+});
+
+
 
 
 
