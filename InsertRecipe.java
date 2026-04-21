@@ -1,3 +1,9 @@
+// AUTHOR: Moyo Ibikunle
+// DATE: 5/04/2026
+// PURPOSE: This class inserts a new recipe into the recipes table.
+//          It stores the recipe name, instructions, default servings,
+//          preparation time, and cooking time. After insertion, it
+//         gets and returns the auto-generated recipe ID.
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

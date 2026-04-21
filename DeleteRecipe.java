@@ -1,3 +1,11 @@
+// AUTHOR: Moyo Ibikunle
+// DATE: 5/04/2026
+//Student ID: C00309427
+// PURPOSE: This class deletes a recipe from the database.
+//          Before removing the recipe, it also deletes any
+//          related records from the nutrition and recipe_ingredients
+//          tables to prevent errors.
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

@@ -1,3 +1,8 @@
+// AUTHOR: Moyo Ibikunle
+// DATE: 2/04/2026
+//Student ID: C00309427
+// PURPOSE: This class inserts a new ingredient into the ingredients table.
+//          After inserting the ingredient, it gets the generated ingredient ID from the database and returns it.
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +17,7 @@ public class InsertIngredient {
         ResultSet rs = null;
         int ingredientId = -1;
 
+        //statement to insert ingredients
         String sql = "INSERT INTO ingredients(name) VALUES (?)";
 
         try {

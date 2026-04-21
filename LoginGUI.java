@@ -1,3 +1,12 @@
+// AUTHOR: Moyo Ibikunle
+// DATE: 12/04/2026
+//Student ID : C00309427
+// PURPOSE: This class creates the admin login for the Recipe Management System.
+//          It allows the user to enter a username and password and checks
+//          whether the details are valid. If the login is successful,
+//          admin controls are shown on the RecipeAdminGUI. The user
+//          is limited to three login attempts.
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -17,13 +26,6 @@ public class LoginGUI extends JFrame {
         // pass in the main GUI so LoginGUI can talk back to it
         this.mainGUI = mainGUI;
 
-         //FORCE CUSTOM COLOURS
-        try {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         setTitle("Admin Login");
         setSize(400, 250);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // only closes this window
@@ -42,11 +44,13 @@ public class LoginGUI extends JFrame {
         add(new JLabel(""));
         add(loginButton);
 
+        //defining custom colors
         Color coral = new Color(232, 165, 152);
         Color softWhite = new Color(255, 255, 255);
         Color darkText = new Color(44, 44, 44);
         Font buttonFont = new Font("Arial", Font.BOLD, 13);
 
+        //styling for window and button
         getContentPane().setBackground(softWhite);
         loginButton.setBackground(coral);
         loginButton.setForeground(softWhite);
@@ -67,6 +71,7 @@ public class LoginGUI extends JFrame {
                 attempts++;
 
                 try {
+                    //a readuser object to validate login details
                     ReadUser readUser = new ReadUser();
                     boolean valid = readUser.isValidAdmin(username, password);
 
@@ -77,11 +82,13 @@ public class LoginGUI extends JFrame {
                         setVisible(false);
 
                     } else {
+                        //if 3 attempts ahve been used, close login window
                         if (attempts >= 3) {
                             // used all attempts - close login window, go back to main screen
                             JOptionPane.showMessageDialog(LoginGUI.this, "Sorry - You have used all 3 attempts.");
                             setVisible(false);
                         } else {
+                            //otherwise, show an error and clear fields
                             JOptionPane.showMessageDialog(LoginGUI.this, "Incorrect credentials. " + (3 - attempts) + " attempt(s) remaining.");
                             usernameField.setText("");
                             passwordField.setText("");

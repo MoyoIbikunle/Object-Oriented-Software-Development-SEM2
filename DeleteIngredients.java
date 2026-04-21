@@ -1,3 +1,10 @@
+// AUTHOR: Moyo Ibikunle
+// DATE: 1/04/2026
+//Student ID: C00309427
+// PURPOSE: This class deletes an ingredient from the ingredients table.
+//          Before deleting, it checks whether the ingredient is already
+//          linked to any recipe in the recipe_ingredients table
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -1,3 +1,9 @@
+// AUTHOR: Moyo Ibikunle
+//Student ID: C00309427
+// DATE: 1/04/2026
+// PURPOSE: This class is responsible for creating and returning a connection
+//          to the MySQL database for the Recipe Management System.
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
