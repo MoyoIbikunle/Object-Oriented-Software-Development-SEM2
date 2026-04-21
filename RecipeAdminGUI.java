@@ -1,8 +1,19 @@
+// AUTHOR: Moyo Ibikunle
+// DATE: 1/02/2026
+// STUDENT ID: C00309427
+// PURPOSE: This class provides the main graphical user interface for the
+//          Recipe Management System. It allows users to view, search,
+//          adjust servings, and convert units for recipes, while also
+//          allowing admin users to log in and manage recipe records
+//          by adding, editing, updating, and deleting recipes.
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 public class RecipeAdminGUI extends JFrame{
+
+    private boolean recipeLoadedForEdit = false;
+
     //Text Fields
     private JTextField idField;
     private JTextField nameField;
@@ -13,9 +24,18 @@ public class RecipeAdminGUI extends JFrame{
     private JTextField proteinField;
     private JTextField fatField;
     private JTextField searchField;
-   
-   
+    private JTextField adjustIdField;
+    private JTextField adjustServingsField;
+    private JTextField convertAmountField;
+
+    private JPanel adjustPanel;
     private JPanel inputPanel;
+    private JPanel converterPanel;
+
+    private JComboBox<String> fromUnitBox;
+    private JComboBox<String> toUnitBox;
+
+    private JLabel convertResultLabel;
 
     //Text Area: allows for multi-line input
     private JTextArea ingredientsArea;
@@ -31,6 +51,9 @@ public class RecipeAdminGUI extends JFrame{
     private JButton adminLoginButton;
     private JButton adminLogoutButton;
     private JButton adjustButton;
+    private JButton editButton;
+    private JButton convertButton;
+    private JButton newRecipeButton;
 
     public RecipeAdminGUI(){
 
@@ -43,7 +66,7 @@ public class RecipeAdminGUI extends JFrame{
 
 
         setTitle("Recipe Admin");
-        setSize(900, 900);
+        setSize(1000, 950);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -103,9 +126,45 @@ public class RecipeAdminGUI extends JFrame{
         searchField = new JTextField(20);
         searchPanel.add(searchField);
 
+
+        adjustPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        adjustPanel.add(new JLabel("Recipe ID to Adjust:"));
+        adjustIdField = new JTextField(5);
+        adjustPanel.add(adjustIdField);
+
+        adjustPanel.add(new JLabel("New Servings:"));
+        adjustServingsField = new JTextField(5);
+        adjustPanel.add(adjustServingsField);
+
+            converterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+            converterPanel.add(new JLabel("Amount:"));
+            convertAmountField = new JTextField(6);
+            converterPanel.add(convertAmountField);
+
+            converterPanel.add(new JLabel("From:"));
+            fromUnitBox = new JComboBox<String>(new String[]{"grams", "ounces", "ml", "cups"});
+            converterPanel.add(fromUnitBox);
+
+            converterPanel.add(new JLabel("To:"));
+            toUnitBox = new JComboBox<String>(new String[]{"grams", "ounces", "ml", "cups"});
+            converterPanel.add(toUnitBox);
+
+            convertButton = new JButton("Convert");
+            converterPanel.add(convertButton);
+
+            convertResultLabel = new JLabel("Result: ");
+            converterPanel.add(convertResultLabel);
+
+        JPanel utilityPanel = new JPanel(new GridLayout(2, 1));
+        utilityPanel.add(adjustPanel);
+        utilityPanel.add(converterPanel);
+        
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(inputPanel, BorderLayout.NORTH);
-        topPanel.add(searchPanel, BorderLayout.SOUTH);
+        topPanel.add(searchPanel, BorderLayout.CENTER);
+        topPanel.add(utilityPanel, BorderLayout.SOUTH);
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -120,23 +179,31 @@ public class RecipeAdminGUI extends JFrame{
 
         //            BUTTON PANEL 
         JPanel buttonPanel = new JPanel(new FlowLayout());
+        newRecipeButton = new JButton("New Recipe");
         addButton = new JButton("Add Recipe");
-        updateButton = new JButton("Update Recipe");
+        editButton = new JButton("Edit Recipe");
+        updateButton = new JButton("Save Updated Recipe");
         deleteButton = new JButton("Delete Recipe");
         viewButton = new JButton("View Recipes");
         searchButton = new JButton("Search Recipes");
         adjustButton = new JButton("Adjust Servings");
         adminLoginButton = new JButton ("Admin Login");
         adminLogoutButton = new JButton("Admin Logout");
+        
+        
 
         // on startup - only view, search and admin login are visible
+        newRecipeButton.setVisible(false);
         addButton.setVisible(false);
         updateButton.setVisible(false);
         deleteButton.setVisible(false);
         adminLogoutButton.setVisible(false);
+        editButton.setVisible(false);
+        updateButton.setVisible(false);
 
-
+        buttonPanel.add(newRecipeButton);
         buttonPanel.add(addButton);
+        buttonPanel.add(editButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(viewButton);
@@ -199,7 +266,19 @@ public class RecipeAdminGUI extends JFrame{
         outputArea.setFont(new Font("Arial", Font.PLAIN, 13));
 
 
+        searchPanel.setBackground(softWhite);
+        adjustPanel.setBackground(softWhite);
+        topPanel.setBackground(softWhite);
 
+        adjustButton.setBackground(coral);
+        adjustButton.setForeground(softWhite);
+        adjustButton.setFont(buttonFont);
+
+
+        converterPanel.setBackground(softWhite);
+        convertButton.setBackground(coral);
+        convertButton.setForeground(softWhite);
+        convertButton.setFont(buttonFont);
 
          // ACTION LISTENERS
         setupActionListeners();
@@ -208,28 +287,50 @@ public class RecipeAdminGUI extends JFrame{
 
     // called by LoginGUI when admin logs in successfully
     public void showAdminControls() {
-        inputPanel.setVisible(true);
-        addButton.setVisible(true);
-        updateButton.setVisible(true);
-        deleteButton.setVisible(true);
-        adminLoginButton.setVisible(false);
-        adminLogoutButton.setVisible(true);
-        revalidate();
-        repaint();
+    clearFields();
+    searchField.setText("");
+    inputPanel.setVisible(false);
+    converterPanel.setVisible(false);
+    adjustPanel.setVisible(false);
+
+    adjustButton.setVisible(false);
+    newRecipeButton.setVisible(true);
+    addButton.setVisible(true);
+    updateButton.setVisible(false);
+    deleteButton.setVisible(true);
+    adminLoginButton.setVisible(false);
+    adminLogoutButton.setVisible(true);
+    editButton.setVisible(true);
+    updateButton.setVisible(true);
+    revalidate();
+    repaint();
+
     }
 
     // called when admin logs out
     private void hideAdminControls() {
+        clearFields();
+        searchField.setText("");
+        
         inputPanel.setVisible(false);
+        adjustPanel.setVisible(true);
+        converterPanel.setVisible(true);
+
+        newRecipeButton.setVisible(false);
         addButton.setVisible(false);
         updateButton.setVisible(false);
         deleteButton.setVisible(false);
         adminLoginButton.setVisible(true);
-       adminLogoutButton.setVisible(false);
+        adminLogoutButton.setVisible(false);
+        editButton.setVisible(false);
+        updateButton.setVisible(false);
+        adjustButton.setVisible(true);
+        recipeLoadedForEdit = false;
         revalidate();
         repaint();
        }
     
+       // This method attaches all button event handlers for the GUI.
        private void setupActionListeners(){
 
 
@@ -257,7 +358,8 @@ public class RecipeAdminGUI extends JFrame{
         addButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
 
-                try{
+        try{
+
                //  READ ADMIN INPUT 
         String name = nameField.getText().trim();
         String instructions = instructionsArea.getText().trim();
@@ -328,12 +430,28 @@ public class RecipeAdminGUI extends JFrame{
 }
 });
 
+newRecipeButton.addActionListener(new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+        inputPanel.setVisible(true);
+        clearAdminForm();
+        updateButton.setVisible(false);
+        revalidate();
+        repaint();
+    }
+});
+
 
 // ----- UPDATE BUTTON -----
 updateButton.addActionListener(new ActionListener(){
     public void actionPerformed(ActionEvent e){
         try {
-            //reading in the values again incase they were changed
+
+            if (!recipeLoadedForEdit) {
+                JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Please enter a Recipe ID and click Edit Recipe first.");
+                return;
+            }
+
+            // reading values from the form
             int recipeId = Integer.parseInt(idField.getText().trim());
             String name = nameField.getText().trim();
             String instructions = instructionsArea.getText().trim();
@@ -342,23 +460,43 @@ updateButton.addActionListener(new ActionListener(){
             int prepTime = Integer.parseInt(prepTimeField.getText().trim());
             int cookTime = Integer.parseInt(cookTimeField.getText().trim());
 
-            // Input validation
-            if(name.isEmpty() || instructions.isEmpty() || ingredients.isEmpty()) {
+            double calories = Double.parseDouble(caloriesField.getText().trim());
+            double protein = Double.parseDouble(proteinField.getText().trim());
+            double fat = Double.parseDouble(fatField.getText().trim());
+
+            // input validation
+            if (name.isEmpty() || instructions.isEmpty() || ingredients.isEmpty()) {
                 JOptionPane.showMessageDialog(RecipeAdminGUI.this, "All fields must be filled.");
                 return;
             }
 
-            // Call UpdateRecipe class
+            if (calories < 0 || protein < 0 || fat < 0) {
+                JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Nutrition values must be positive numbers.");
+                return;
+            }
+
+            // update main recipe details
             UpdateRecipe updater = new UpdateRecipe();
             int rows = updater.updateRecipe(recipeId, name, instructions, servings, prepTime, cookTime);
 
-            JOptionPane.showMessageDialog(RecipeAdminGUI.this, rows + " recipe updated successfully!");
-            clearFields();
+            // update nutrition values
+            UpdateNutrition nutritionUpdater = new UpdateNutrition();
+            nutritionUpdater.updateNutrition(recipeId, fat, protein, calories);
 
-        } 
-        //when java cant parse a String into a numeric type cause the text wasnt a valid number
-        catch(NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Recipe ID, Servings, Prep Time, and Cook Time must be numbers.");
+            JOptionPane.showMessageDialog(RecipeAdminGUI.this, rows + " recipe updated successfully!");
+
+            recipeLoadedForEdit = false;
+            updateButton.setVisible(false);
+            clearFields();
+            inputPanel.setVisible(false);
+            revalidate();
+            repaint();
+
+        } catch(NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(
+                RecipeAdminGUI.this,
+                "Recipe ID, Servings, Prep Time, Cook Time, and Nutrition values must be numbers."
+            );
         } catch(Exception ex) {
             JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Error updating recipe: " + ex.getMessage());
             ex.printStackTrace();
@@ -372,9 +510,29 @@ updateButton.addActionListener(new ActionListener(){
 deleteButton.addActionListener(new ActionListener(){
     public void actionPerformed(ActionEvent e){
         try {
-            int recipeId = Integer.parseInt(idField.getText().trim());
+            inputPanel.setVisible(false);
+            revalidate();
+            repaint();
 
-            // Call DeleteRecipe class
+            String idText = JOptionPane.showInputDialog(RecipeAdminGUI.this, "Enter Recipe ID to delete:");
+
+            if (idText == null || idText.trim().isEmpty()) {
+                return;
+            }
+
+            int recipeId = Integer.parseInt(idText.trim());
+
+            int confirm = JOptionPane.showConfirmDialog(
+                RecipeAdminGUI.this,
+                "Are you sure you want to delete recipe ID " + recipeId + "?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+
             DeleteRecipe deleter = new DeleteRecipe();
             int rows = deleter.deleteRecipe(recipeId);
 
@@ -394,6 +552,11 @@ deleteButton.addActionListener(new ActionListener(){
 viewButton.addActionListener(new ActionListener(){
     public void actionPerformed(ActionEvent e){
         try {
+
+            inputPanel.setVisible(false);
+        clearFields();
+        revalidate();
+        repaint();
 
             ReadRecipe reader = new ReadRecipe();
             // get all recipes as a String
@@ -415,6 +578,12 @@ viewButton.addActionListener(new ActionListener(){
         searchButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 try {
+
+                    inputPanel.setVisible(false);
+                    clearFields();
+                    revalidate();
+                    repaint();
+                    
                     String searchTerm = searchField.getText().trim();
 
                     // Input validation
@@ -439,8 +608,8 @@ viewButton.addActionListener(new ActionListener(){
         adjustButton.addActionListener(new ActionListener(){
     public void actionPerformed(ActionEvent e){
         try {
-            int recipeId = Integer.parseInt(idField.getText().trim());
-            int desiredServings = Integer.parseInt(servingsField.getText().trim());
+            int recipeId = Integer.parseInt(adjustIdField.getText().trim());
+            int desiredServings = Integer.parseInt(adjustServingsField.getText().trim());
 
             if (desiredServings <= 0) {
                 JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Servings must be greater than 0.");
@@ -454,7 +623,7 @@ viewButton.addActionListener(new ActionListener(){
             outputArea.setCaretPosition(0);
 
         } catch(NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Recipe ID and Servings must be numbers.");
+            JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Recipe ID and New Servings must be numbers.");
         } catch(Exception ex) {
             JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Error adjusting recipe: " + ex.getMessage());
             ex.printStackTrace();
@@ -462,14 +631,91 @@ viewButton.addActionListener(new ActionListener(){
     }
 });
 
+    editButton.addActionListener(new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+        try {
+            String idText = JOptionPane.showInputDialog(RecipeAdminGUI.this, "Enter Recipe ID to edit:");
 
+            if (idText == null || idText.trim().isEmpty()) {
+                return;
+            }
 
+            int recipeId = Integer.parseInt(idText.trim());
 
+            ReadRecipe reader = new ReadRecipe();
+            RecipeData recipe = reader.getRecipeForEdit(recipeId);
 
+            if (recipe == null) {
+                JOptionPane.showMessageDialog(RecipeAdminGUI.this, "No recipe found with that ID.");
+                recipeLoadedForEdit = false;
+                return;
+            }
+
+            inputPanel.setVisible(true);
+
+            idField.setText(String.valueOf(recipe.getRecipeId()));
+            nameField.setText(recipe.getRecipeName());
+            instructionsArea.setText(recipe.getInstructions());
+            ingredientsArea.setText(recipe.getIngredients());
+            servingsField.setText(String.valueOf(recipe.getServings()));
+            prepTimeField.setText(String.valueOf(recipe.getPrepTime()));
+            cookTimeField.setText(String.valueOf(recipe.getCookTime()));
+            caloriesField.setText(String.valueOf(recipe.getCalories()));
+            proteinField.setText(String.valueOf(recipe.getProtein()));
+            fatField.setText(String.valueOf(recipe.getFat()));
+
+            recipeLoadedForEdit = true;
+            updateButton.setVisible(true);
+
+            revalidate();
+            repaint();
+
+            JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Recipe loaded. You can now edit and save changes.");
+
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Recipe ID must be a number.");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Error loading recipe: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+});
+
+    convertButton.addActionListener(new ActionListener() {
+    public void actionPerformed(ActionEvent e) {
+        try {
+            double amount = Double.parseDouble(convertAmountField.getText().trim());
+            String fromUnit = fromUnitBox.getSelectedItem().toString();
+            String toUnit = toUnitBox.getSelectedItem().toString();
+
+            double result = 0;
+
+            if (fromUnit.equals("grams") && toUnit.equals("ounces")) {
+                result = amount / 28.35;
+            } else if (fromUnit.equals("ounces") && toUnit.equals("grams")) {
+                result = amount * 28.35;
+            } else if (fromUnit.equals("ml") && toUnit.equals("cups")) {
+                result = amount / 236.59;
+            } else if (fromUnit.equals("cups") && toUnit.equals("ml")) {
+                result = amount * 236.59;
+            } else if (fromUnit.equals(toUnit)) {
+                result = amount;
+            } else {
+                JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Please choose a valid conversion pair.");
+                return;
+            }
+
+            convertResultLabel.setText("Result: " + String.format("%.2f", result) + " " + toUnit);
+
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(RecipeAdminGUI.this, "Please enter a valid amount.");
+        }
+    }
+});
     }
 
 
-
+    // This method clears all input, output, and utility fields on the form.
     private void clearFields() {
         idField.setText("");
         nameField.setText("");
@@ -482,6 +728,27 @@ viewButton.addActionListener(new ActionListener(){
         ingredientsArea.setText("");
         instructionsArea.setText("");
         outputArea.setText("");
+        convertAmountField.setText("");
+        convertResultLabel.setText("Result: ");
+        adjustIdField.setText("");
+        adjustServingsField.setText("");
 
+        recipeLoadedForEdit = false;
     }
+
+    // This method clears only the admin recipe input form fields.
+    private void clearAdminForm() {
+    idField.setText("");
+    nameField.setText("");
+    servingsField.setText("");
+    prepTimeField.setText("");
+    cookTimeField.setText("");
+    caloriesField.setText("");
+    proteinField.setText("");
+    fatField.setText("");
+    ingredientsArea.setText("");
+    instructionsArea.setText("");
+    recipeLoadedForEdit = false;
+}
+    
 } 
